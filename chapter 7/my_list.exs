@@ -33,4 +33,15 @@ defmodule MyList do
   defp _ceasar([head | tail], value, n) when head + n <= 122 do
     _ceasar(tail, value ++ [head + n], n)
   end
+
+  # Practice-4
+  def span(list, from, to), do: _span(list, 0, [], from, to)
+  defp _span([], _, value, _, _), do: value
+  defp _span([head | tail], count, value, from, to)
+    when from <= count and count <= to do
+    _span(tail, count + 1, value ++ [head], from, to)
+  end
+  defp _span([head | tail], count, value, from, to) do
+    _span(tail, count + 1, value, from , to)
+  end
 end
