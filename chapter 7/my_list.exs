@@ -1,10 +1,8 @@
 defmodule MyList do
   # Practice-0
   # Sum without accumulator.
-  def sum(list), do: _sum(list)
-
-  defp _sum([]),            do: 0
-  defp _sum([head | tail]), do: head + _sum(tail)
+  def sum([]),            do: 0
+  def sum([head | tail]), do: head + _sum(tail)
 
   # Practice-1
   def mapsum(list, func), do: _mapsum(list, 0, func)
