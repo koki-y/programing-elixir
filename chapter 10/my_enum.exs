@@ -30,4 +30,13 @@ defmodule MyEnum do
       [head] ++ take(tail, num - 1)
   end
   def take(_list, _num), do: []
+
+  # Practice-6
+  def flatten([]), do: []
+  def flatten([head | tail]) when is_list(head) do
+    flatten(head) ++ flatten(tail)
+  end
+  def flatten([head | tail]) do
+    [head] ++ flatten(tail)
+  end
 end
