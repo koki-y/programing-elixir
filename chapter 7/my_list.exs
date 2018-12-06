@@ -2,7 +2,7 @@ defmodule MyList do
   # Practice-0
   # Sum without accumulator.
   def sum([]),            do: 0
-  def sum([head | tail]), do: head + _sum(tail)
+  def sum([head | tail]), do: head + sum(tail)
 
   # Practice-1
   def mapsum(list, func), do: _mapsum(list, 0, func)
@@ -33,13 +33,12 @@ defmodule MyList do
   end
 
   # Practice-4
-  def span(list, from, to), do: _span(list, 0, [], from, to)
-  defp _span([], _, value, _, _), do: value
-  defp _span([head | tail], count, value, from, to)
-    when from <= count and count <= to do
-    _span(tail, count + 1, value ++ [head], from, to)
+  def span(from, to), do: _span(from, to, 0)
+  defp _span(_from, to, count) when count >  to,  do: []
+  defp _span(from, to, count)  when count >= from do
+      [count] ++ _span(from, to, count + 1)
   end
-  defp _span([head | tail], count, value, from, to) do
-    _span(tail, count + 1, value, from , to)
+  defp _span(from, to, count) do
+    _span(from, to, count + 1)
   end
 end
