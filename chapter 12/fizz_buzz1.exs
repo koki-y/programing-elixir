@@ -1,6 +1,6 @@
 defmodule FizzBuzz do
   def fizzbuzz(n) do
-    _fizzbuzz(rem(n, 5), rem(n, 3), n)
+    _fizzbuzz(rem(n, 3), rem(n, 5), n)
   end
 
   defp _fizzbuzz(0, 0, _), do: "FizzBuzz"
