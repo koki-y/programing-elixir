@@ -7,5 +7,4 @@ defmodule FizzBuzz do
       {_, _} -> n
     end
   end
-
 end
