@@ -8,7 +8,9 @@ defmodule Issues.CLI do
   """
 
   def run(argv) do
-    parse_args(argv)
+    argv
+    |> parse_args
+    |> process
   end
 
   @doc """
@@ -20,7 +22,7 @@ defmodule Issues.CLI do
   """
   def parse_args(argv) do
     parse = OptionParser.parse(argv, switches: [ help: :boolean],
-                                     aliases:  [ h:    :help])
+                                     aliases:  [ h:    :help   ])
     case parse do
       { [ help: true ], _, _ }
         -> :help
@@ -30,5 +32,15 @@ defmodule Issues.CLI do
         -> { user, project, @default_count }
       _ -> :help
     end
+  end
+
+  def process(:help) do
+    IO.puts """
+    usage: issues <user> <project> [ count | #{@default_count} ]
+    """
+    System.halt(0)
+  end
+  def process({user, project, _count}) do
+    Issues.GithubIssues.fetch(user, project)
   end
 end
