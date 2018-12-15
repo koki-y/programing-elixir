@@ -12,9 +12,9 @@ defmodule Issues.GithubIssues do
   end
 
   def handle_response({:ok, %{status_code: 200, body: body}}) do
-    { :ok,    body }
+    { :ok,    Poison.parse!(body) }
   end
   def handle_response({  _, %{status_code:   _, body: body}}) do
-    { :error, body }
+    { :error, Poison.parse!(body) }
   end
 end
