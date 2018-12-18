@@ -7,7 +7,7 @@ defmodule Issues.CLI do
   table of the last _n_ issues in a gihub project
   """
 
-  def run(argv) do
+  def main(argv) do
     argv
     |> parse_args
     |> process
@@ -47,6 +47,8 @@ defmodule Issues.CLI do
     |> convert_to_list_of_maps
     |> sort_into_ascending_order
     |> Enum.take(count)
+    |> withdraw_necessary_data
+    |> print_date
   end
 
   def decode_response({:ok, body}), do: body
@@ -64,5 +66,40 @@ defmodule Issues.CLI do
 
   def sort_into_ascending_order(list_of_issues) do
     Enum.sort list_of_issues, fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
+  end
+
+  def withdraw_necessary_data(list_of_issues) do
+    Enum.map list_of_issues,
+      fn issue -> [issue["number"], issue["created_at"], issue["title"],
+                   String.length(Integer.to_string(issue["number"])), String.length(issue["title"])]
+      end
+  end
+
+  def measure_num_length([], num_max), do: num_max
+  def measure_num_length([[_, _, _, num_len, _] | tail], num_max)
+    when num_len > num_max do
+      measure_num_length([tail], num_len)
+  end
+  def measure_num_length([_ | tail], num_max), do: measure_num_length(tail, num_max)
+
+  def measure_title_length([], title_max), do: title_max
+  def measure_title_length([[_, _, _, _, title_len] | tail], title_max)
+    when title_len > title_max do
+      measure_title_length([tail], title_len)
+  end
+  def measure_title_length([_ | tail], title_max), do: measure_title_length(tail, title_max)
+
+  def print_date(list_of_issues) do
+    num_max   = measure_num_length(list_of_issues, 0)
+    title_max = measure_title_length(list_of_issues, 0)
+    num = String.duplicate(" ", round((num_max - 1) / 2)) <> "#" <> String.duplicate(" ", trunc((num_max - 1) / 2))
+    IO.puts "#{num} | crated_at            | title"
+    IO.puts String.duplicate("-", num_max) <> "-+----------------------+-" <> String.duplicate("-", title_max)
+    print_date(list_of_issues, num_max)
+  end
+  def print_date([], _), do: :ok
+  def print_date([[num, data, title, num_len, _] | tail], num_max) do
+    IO.puts String.duplicate(" ", num_max - num_len) <> Integer.to_string(num) <> " | " <> data <> " | " <> title
+    print_date(tail, num_max)
   end
 end
