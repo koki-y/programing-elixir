@@ -44,7 +44,7 @@ defmodule Client do
 
   def receiver do
     receive do
-      { :tick, num } ->
+      { :tick } ->
         IO.puts "tock"
         receiver()
     end
