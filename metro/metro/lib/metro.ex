@@ -4,27 +4,44 @@ defmodule Metro do
   """
 
   @doc """
-  convert romaji to kanji..
+  convert romaji to kanji.
 
   ## Examples
-      iex> Metro.romaji_to_kanji("", [])
-      ""
+      iex> stations = [%{kanji: "池袋", kana: "いけぶくろ", romaji: "ikebukuro", shozoku: "有楽町線"}]
+      iex> Metro.romaji_to_kanji("ikebukuro", stations)
+      "池袋"
   """
-  def romaji_to_kanji(_, []), do: ""
-  def romaji_to_kanji(target, [%{romaji: romaji, kanji: kanji} | _])
-    when target == romaji do
-      kanji
-  end
-  def romaji_to_kanji(romaji, [_ | tail]) do
-    romaji_to_kanji(romaji, tail)
-  end
+  def romaji_to_kanji(_target, []), do: ""
+  def romaji_to_kanji(target,  [%{romaji: romaji, kanji: kanji} | _])
+    when target == romaji, do: kanji
+  def romaji_to_kanji(target,  [_ | tail]), do: romaji_to_kanji(target, tail)
 
+  @doc """
+  Get the distance between the two stations.
+  The station names are given in kanji.
+
+  ## Examples
+      iex> station_dist = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2}]
+      iex> Metro.get_kyori("池袋", "東池袋", station_dist)
+      2.0
+  """
   def get_kyori(_from, _to, []), do: :infinity
   def get_kyori(from, to, [%{kiten: kiten, shuten: shuten, kyori: kyori} | _tail])
     when from == kiten  and to == shuten
       or from == shuten and to == kiten, do: kyori
   def get_kyori(from, to, [_ | tail]), do: get_kyori(from, to, tail)
 
+  @doc """
+  Print the distance in specific format.
+  The station names are given in roman.
+
+  ## Examples
+      iex> station = [%{kanji: "東池袋", kana: "ひがしいけぶくろ", romaji: "higasiikebukuro", shozoku: "有楽町線"},
+      ...>            %{kanji: "池袋",   kana: "いけぶくろ",      romaji: "ikebukuro",       shozoku: "有楽町線"}]
+      iex> station_dist = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2}]
+      iex> Metro.kyori_wo_hyoji("ikebukuro", "higasiikebukuro", station, station_dist)
+      "池袋駅から東池袋駅までは2.0kmです"
+  """
   def kyori_wo_hyoji(from, to, eki, ekikan) do
     _kyori_wo_hyoji(from, romaji_to_kanji(from, eki), to, romaji_to_kanji(to, eki), ekikan)
   end
