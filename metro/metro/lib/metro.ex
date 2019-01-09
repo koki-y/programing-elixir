@@ -19,6 +19,7 @@ defmodule Metro do
   @doc """
   Get the distance between the two stations.
   The station names are given in kanji.
+  If the stations are not connected, it will return :infinity.
 
   ## Examples
       iex> station_dist = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2}]
