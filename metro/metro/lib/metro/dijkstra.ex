@@ -41,4 +41,24 @@ defmodule Metro.Dijkstra do
   defp _shokika([head | tail], start_station, result) do
     _shokika(tail, start_station, result ++ [head])
   end
+
+  @doc """
+  Update eki info
+  ## Examples
+      iex> stations_dist   = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2}]
+      iex> higasiikebukuro = %{namae: "東池袋", saitan_kyori:         0, temae_list: ["東池袋"]}
+      iex> ikebukuro       = %{namae:   "池袋", saitan_kyori: :infinity, temae_list: []}
+      iex> Metro.Dijkstra.kousin1(higasiikebukuro, ikebukuro, stations_dist)
+      %{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]}
+  """
+  def kousin1(p = %{namae: namae1}, q = %{namae: namae2}, ekikan_list) do
+    _kousin1(p, q, Metro.get_kyori(namae1, namae2, ekikan_list))
+  end
+  defp _kousin1(_p, q, :infinity), do: q
+  defp _kousin1(%{saitan_kyori: kyori1, temae_list: temae1}, %{namae: namae2, saitan_kyori: kyori2}, new_kyori)
+    when kyori2 == :infinity
+      or kyori2 > new_kyori do
+    %{namae: namae2, saitan_kyori: kyori1 + new_kyori, temae_list: [namae2 | temae1]}
+  end
+  defp _kousin1(_p, q, _new_kyori), do: q
 end
