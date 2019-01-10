@@ -4,6 +4,31 @@ defmodule Metro.Dijkstra do
   """
 
   @doc """
+  Dijkstra
+  """
+  def dijkstra(from, to) do
+    from_k = Metro.romaji_to_kanji(from, Data.ekimei_list())
+    Data.ekimei_list()
+        |> seiretu
+        |> shokika(from_k)
+        |> dijkstra_main(Data.ekikan())
+  end
+
+  @doc """
+  Dijkstra algorithm
+  """
+  def dijkstra_main(stations, ekikan) do
+    [nearest: saitan, rest: nokori] = saitan_wo_bunri(stations)
+    _dijkstra_main([], saitan, nokori, ekikan)
+  end
+  defp _dijkstra_main(result, _pibot, [], _ekikan), do: result
+  defp _dijkstra_main(result, pibot, stations, ekikan) do
+    [nearest: saitan, rest: nokori] = kousin(pibot, stations, ekikan)
+                                        |> saitan_wo_bunri
+    _dijkstra_main(result ++ [pibot], saitan, nokori, ekikan)
+  end
+
+  @doc """
   Make station list
   ## Examples
       iex> stations = [%{kanji: "池袋", kana: "いけぶくろ", romaji: "ikebukuro", shozoku: "有楽町線"}]
@@ -82,7 +107,7 @@ defmodule Metro.Dijkstra do
   defp _kousin1(_p, q, :infinity), do: q
   defp _kousin1(%{saitan_kyori: kyori1, temae_list: temae1}, %{namae: namae2, saitan_kyori: kyori2}, new_kyori)
     when kyori2 == :infinity
-      or kyori2 > new_kyori do
+      or kyori2 > kyori1 + new_kyori do
     %{namae: namae2, saitan_kyori: kyori1 + new_kyori, temae_list: [namae2 | temae1]}
   end
   defp _kousin1(_p, q, _new_kyori), do: q
