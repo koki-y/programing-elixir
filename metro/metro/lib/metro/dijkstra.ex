@@ -102,4 +102,23 @@ defmodule Metro.Dijkstra do
   def kousin(p, v, ekikan_list) do
     Enum.map v, &(kousin1(p, &1, ekikan_list))
   end
+
+  @doc """
+  return nearest station and rest.
+  ## Examples
+      iex> stations = [%{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]},
+      ...>             %{namae: "隣乃駅", saitan_kyori: 3.0, temae_list: ["隣乃駅", "東池袋"]}]
+      iex> Metro.Dijkstra.saitan_wo_bunri(stations)
+      [nearest: %{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]},
+       rest:    [%{namae: "隣乃駅", saitan_kyori: 3.0, temae_list: ["隣乃駅", "東池袋"]}]]
+  """
+  def saitan_wo_bunri(stations), do: _bunri(stations, %{saitan_kyori: :infinity}, [], [])
+  defp _bunri([], saitan, _mae, nokori), do: [ nearest: saitan, rest: nokori ]
+  defp _bunri([head = %{saitan_kyori: kyori}|tail], %{saitan_kyori: current_saitan}, mae, _nokori)
+      when kyori < current_saitan do
+    _bunri(tail, head, mae ++ [head], mae ++ tail)
+  end
+  defp _bunri([head|tail], saitan, mae, nokori) do
+    _bunri(tail, saitan, mae ++ [head], nokori)
+  end
 end
