@@ -33,6 +33,7 @@ defmodule Metro.Dijkstra do
 
   @doc """
   Make station list
+
   ## Examples
       iex> stations = [%{kanji: "池袋", kana: "いけぶくろ", romaji: "ikebukuro", shozoku: "有楽町線"}]
       iex> Metro.Dijkstra.make_eki_list(stations)
@@ -46,13 +47,14 @@ defmodule Metro.Dijkstra do
 
   @doc """
   seiretu and reduce same objects
+
   ## Examples
       iex> stations = [%{kanji: "東池袋", kana: "ひがしいけぶくろ", romaji: "higasiikebukuro", shozoku: "有楽町線"},
-      ...>             %{kanji: "池袋", kana: "いけぶくろ", romaji: "ikebukuro", shozoku: "丸ノ内線"},
-      ...>             %{kanji: "池袋", kana: "いけぶくろ", romaji: "ikebukuro", shozoku: "有楽町線"}]
+      ...>             %{kanji: "池袋",   kana: "いけぶくろ",       romaji: "ikebukuro",       shozoku: "丸ノ内線"},
+      ...>             %{kanji: "池袋",   kana: "いけぶくろ",       romaji: "ikebukuro",       shozoku: "有楽町線"}]
       iex> Metro.Dijkstra.seiretu(stations)
-      [%{namae: "池袋", saitan_kyori: :infinity, temae_list: []},
-       %{namae: "東池袋",   saitan_kyori: :infinity, temae_list: []}]
+      [%{namae: "池袋",   saitan_kyori: :infinity, temae_list: []},
+       %{namae: "東池袋", saitan_kyori: :infinity, temae_list: []}]
   """
   def seiretu(stations) do
     stations |> Enum.sort(&(&1[:kana] < &2[:kana]))
@@ -71,6 +73,7 @@ defmodule Metro.Dijkstra do
 
   @doc """
   Initialize start station.
+
   ## Examples
       iex> stations = [
       ...>  %{namae: "飯田橋",   saitan_kyori: :infinity, temae_list: []},
@@ -97,10 +100,11 @@ defmodule Metro.Dijkstra do
 
   @doc """
   Update eki info
+
   ## Examples
       iex> stations_dist   = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2}]
-      iex> higasiikebukuro = %{namae: "東池袋", saitan_kyori:         0, temae_list: ["東池袋"]}
-      iex> ikebukuro       = %{namae:   "池袋", saitan_kyori: :infinity, temae_list: []}
+      iex> higasiikebukuro = %{namae: "東池袋", saitan_kyori: 0,         temae_list: ["東池袋"]}
+      iex> ikebukuro       = %{namae: "池袋",   saitan_kyori: :infinity, temae_list: []}
       iex> Metro.Dijkstra.kousin1(higasiikebukuro, ikebukuro, stations_dist)
       %{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]}
   """
@@ -117,12 +121,13 @@ defmodule Metro.Dijkstra do
 
   @doc """
   Update eki info list
+
   ## Examples
-      iex> stations_dist   = [%{kiten: "東池袋", shuten: "池袋", keiyu: "有楽町線", kyori: 2.0, jikan: 2},
+      iex> stations_dist   = [%{kiten: "東池袋", shuten: "池袋",   keiyu: "有楽町線", kyori: 2.0, jikan: 2},
       ...>                    %{kiten: "東池袋", shuten: "隣乃駅", keiyu: "有楽町線", kyori: 3.0, jikan: 3}]
-      iex> higasiikebukuro = %{namae: "東池袋", saitan_kyori:         0, temae_list: ["東池袋"]}
-      iex> next_stations   = [%{namae:   "池袋", saitan_kyori: :infinity, temae_list: []},
-      ...>                    %{namae:   "隣乃駅", saitan_kyori: :infinity, temae_list: []}]
+      iex> higasiikebukuro = %{namae: "東池袋",  saitan_kyori: 0,         temae_list: ["東池袋"]}
+      iex> next_stations   = [%{namae: "池袋",   saitan_kyori: :infinity, temae_list: []},
+      ...>                    %{namae: "隣乃駅", saitan_kyori: :infinity, temae_list: []}]
       iex> Metro.Dijkstra.kousin(higasiikebukuro, next_stations, stations_dist)
       [%{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]},
       %{namae: "隣乃駅", saitan_kyori: 3.0, temae_list: ["隣乃駅", "東池袋"]}]
@@ -133,6 +138,7 @@ defmodule Metro.Dijkstra do
 
   @doc """
   return nearest station and rest.
+
   ## Examples
       iex> stations = [%{namae: "池袋", saitan_kyori: 2.0, temae_list: ["池袋", "東池袋"]},
       ...>             %{namae: "隣乃駅", saitan_kyori: 3.0, temae_list: ["隣乃駅", "東池袋"]}]
