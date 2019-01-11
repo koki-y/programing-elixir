@@ -6,26 +6,29 @@ defmodule Metro.Dijkstra do
   @doc """
   Dijkstra
   """
-  def dijkstra(from, to) do
+  def dijkstra(from) do
     from_k = Metro.romaji_to_kanji(from, Data.ekimei_list())
     Data.ekimei_list()
         |> seiretu
         |> shokika(from_k)
         |> dijkstra_main(Data.ekikan())
   end
+  def dijkstra(from, to) do
+    to_k = Metro.romaji_to_kanji(to, Data.ekimei_list())
+    dijkstra(from)
+        |> Enum.filter(fn %{namae: namae} -> namae == to_k end)
+  end
 
   @doc """
   Dijkstra algorithm
   """
   def dijkstra_main(stations, ekikan) do
-    [nearest: saitan, rest: nokori] = saitan_wo_bunri(stations)
-    _dijkstra_main([], saitan, nokori, ekikan)
+    _dijkstra_main(saitan_wo_bunri(stations), ekikan, [])
   end
-  defp _dijkstra_main(result, _pibot, [], _ekikan), do: result
-  defp _dijkstra_main(result, pibot, stations, ekikan) do
-    [nearest: saitan, rest: nokori] = kousin(pibot, stations, ekikan)
-                                        |> saitan_wo_bunri
-    _dijkstra_main(result ++ [pibot], saitan, nokori, ekikan)
+  defp _dijkstra_main([nearest: _,      rest: []],    _ekikan, result), do: result
+  defp _dijkstra_main([nearest: saitan, rest: nokori], ekikan, result) do
+    stations = kousin(saitan, nokori, ekikan)
+    _dijkstra_main(saitan_wo_bunri(stations), ekikan, result ++ [saitan])
   end
 
   @doc """
@@ -36,7 +39,7 @@ defmodule Metro.Dijkstra do
       [%{namae: "池袋", saitan_kyori: :infinity, temae_list: []}]
   """
   def make_eki_list(stations),     do: _make_eki_list(stations, [])
-  defp _make_eki_list([], result), do: result
+  defp _make_eki_list([],                       result), do: result
   defp _make_eki_list([%{kanji: kanji} | tail], result) do
     _make_eki_list(tail, result ++ [%{namae: kanji, saitan_kyori: :infinity, temae_list: []}])
   end
