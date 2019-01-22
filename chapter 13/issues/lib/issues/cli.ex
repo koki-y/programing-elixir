@@ -44,7 +44,7 @@ defmodule Issues.CLI do
   def process({user, project, count}) do
     Issues.GithubIssues.fetch(user, project)
     |> decode_response
-    |> convert_to_list_of_maps
+    |> convert_keyword_lists_to_maps
     |> sort_into_ascending_order
     |> Enum.take(count)
     |> withdraw_necessary_data
@@ -59,7 +59,7 @@ defmodule Issues.CLI do
     System.halt(2)
   end
 
-  def convert_to_list_of_maps(list) do
+  def convert_keyword_lists_to_maps(list) do
     list |> Enum.map(&Enum.into(&1, Map.new))
   end
 
