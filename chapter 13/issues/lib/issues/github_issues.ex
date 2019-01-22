@@ -1,12 +1,16 @@
 defmodule Issues.GithubIssues do
   @user_agent [ {"User-agent", "Elixir dave@pragprog.com"} ]
   @github_url Application.get_env(:issues, :github_url)
+  @proxy_url  System.get_env("http_proxy")
 
   def fetch(user, project) do
     issues_url(user, project)
-    |> HTTPoison.get(@user_agent)
+    |> get_issues(@user_agent, @proxy_url)
     |> handle_response
   end
+
+  def get_issues(url, agent, proxy), do: HTTPoison.get url, agent, proxy: proxy
+  def get_issues(url, agent, nil),   do: HTTPoison.get url, agent
 
   def issues_url(user, project) do
     "#{@github_url}/repos/#{user}/#{project}/issues"
