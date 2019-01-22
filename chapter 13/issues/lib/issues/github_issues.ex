@@ -4,17 +4,17 @@ defmodule Issues.GithubIssues do
   @proxy_url  System.get_env("http_proxy")
 
   def fetch(user, project) do
-    issues_url(user, project)
+    make_url(user, project)
     |> get_issues(@user_agent, @proxy_url)
     |> handle_response
   end
 
-  def get_issues(url, agent, proxy), do: HTTPoison.get url, agent, proxy: proxy
-  def get_issues(url, agent, nil),   do: HTTPoison.get url, agent
-
-  def issues_url(user, project) do
+  def make_url(user, project) do
     "#{@github_url}/repos/#{user}/#{project}/issues"
   end
+
+  def get_issues(url, agent, proxy), do: HTTPoison.get url, agent, proxy: proxy
+  def get_issues(url, agent, nil),   do: HTTPoison.get url, agent
 
   def handle_response({:ok, %{status_code: 200, body: body}}) do
     { :ok,    Poison.Parser.parse!(body) }

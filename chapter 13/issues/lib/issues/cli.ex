@@ -43,7 +43,7 @@ defmodule Issues.CLI do
 
   def process({user, project, count}) do
     Issues.GithubIssues.fetch(user, project)
-    |> decode_response
+    |> handle_response
     |> convert_keyword_lists_to_maps
     |> sort_into_ascending_order
     |> Enum.take(count)
@@ -51,9 +51,8 @@ defmodule Issues.CLI do
     |> print_date
   end
 
-  def decode_response({:ok, body}), do: body
-
-  def decode_response({:error, error}) do
+  def handle_response({:ok,    body}), do: body
+  def handle_response({:error, error}) do
     {_, message} = List.keyfind(error, "message", 0)
     IO.puts "Error fetching from Github: #{message}"
     System.halt(2)
@@ -67,42 +66,47 @@ defmodule Issues.CLI do
     Enum.sort list_of_issues, fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
   end
 
-  def sort_into_cending_order(list_of_issues) do
+  def sort_into_descending_order(list_of_issues) do
     Enum.sort list_of_issues, fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
   end
 
   def withdraw_necessary_data(list_of_issues) do
     Enum.map list_of_issues,
-      fn issue -> [issue["number"], issue["created_at"], issue["title"],
-                   String.length(Integer.to_string(issue["number"])), String.length(issue["title"])]
+      fn issue -> {issue["number"], issue["created_at"], issue["title"],
+                   String.length(Integer.to_string(issue["number"])), String.length(issue["title"])}
       end
   end
 
-  def measure_num_length([], num_max), do: num_max
-  def measure_num_length([[_, _, _, num_len, _] | tail], num_max)
-    when num_len > num_max do
-      measure_num_length(tail, num_len)
-  end
-  def measure_num_length([_ | tail], num_max), do: measure_num_length(tail, num_max)
-
-  def measure_title_length([], title_max), do: title_max
-  def measure_title_length([[_, _, _, _, title_len] | tail], title_max)
-    when title_len > title_max do
-      measure_title_length(tail, title_len)
-  end
-  def measure_title_length([_ | tail], title_max), do: measure_title_length(tail, title_max)
-
   def print_date(list_of_issues) do
-    num_max   = measure_num_length(list_of_issues, 0)
-    title_max = measure_title_length(list_of_issues, 0)
+    num_max   = measure_num_length(list_of_issues)
+    title_max = measure_title_length(list_of_issues)
+    print_header(num_max, title_max)
+    print_issues(list_of_issues, num_max)
+  end
+
+  def print_header(num_max, title_max) do
     num = String.duplicate(" ", round((num_max - 1) / 2)) <> "#" <> String.duplicate(" ", trunc((num_max - 1) / 2))
     IO.puts "#{num} | crated_at            | title"
     IO.puts String.duplicate("-", num_max) <> "-+----------------------+-" <> String.duplicate("-", title_max)
-    print_date(list_of_issues, num_max)
   end
-  def print_date([], _), do: :ok
-  def print_date([[num, data, title, num_len, _] | tail], num_max) do
+
+  def print_issues([], _), do: :ok
+  def print_issues([{num, data, title, num_len, _} | tail], num_max) do
     IO.puts String.duplicate(" ", num_max - num_len) <> Integer.to_string(num) <> " | " <> data <> " | " <> title
-    print_date(tail, num_max)
+    print_issues(tail, num_max)
+  end
+
+  def measure_num_length(list) do
+    list
+    |> Enum.reduce(0,
+        fn ({_, _, _, num_len, _}, num_max) when num_len > num_max -> num_len
+           (_,                     num_max)                        -> num_max
+        end)
+  end
+
+  def measure_title_length(list) do
+    list |> Enum.reduce(0, fn ({_, _, _, _, title_len}, title_max) when title_len > title_max -> title_len
+                              (_,                       title_max)                            -> title_max
+                           end)
   end
 end
