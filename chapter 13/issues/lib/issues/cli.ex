@@ -60,11 +60,14 @@ defmodule Issues.CLI do
   end
 
   def convert_to_list_of_maps(list) do
-    list
-    |> Enum.map(&Enum.into(&1, Map.new))
+    list |> Enum.map(&Enum.into(&1, Map.new))
   end
 
   def sort_into_ascending_order(list_of_issues) do
+    Enum.sort list_of_issues, fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
+  end
+
+  def sort_into_cending_order(list_of_issues) do
     Enum.sort list_of_issues, fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
   end
 
@@ -78,14 +81,14 @@ defmodule Issues.CLI do
   def measure_num_length([], num_max), do: num_max
   def measure_num_length([[_, _, _, num_len, _] | tail], num_max)
     when num_len > num_max do
-      measure_num_length([tail], num_len)
+      measure_num_length(tail, num_len)
   end
   def measure_num_length([_ | tail], num_max), do: measure_num_length(tail, num_max)
 
   def measure_title_length([], title_max), do: title_max
   def measure_title_length([[_, _, _, _, title_len] | tail], title_max)
     when title_len > title_max do
-      measure_title_length([tail], title_len)
+      measure_title_length(tail, title_len)
   end
   def measure_title_length([_ | tail], title_max), do: measure_title_length(tail, title_max)
 
